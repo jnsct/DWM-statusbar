@@ -1,0 +1,33 @@
+#!/bin/sh
+EMPTY=
+QUART=
+HALF=
+TQUART=
+FULL=
+CHARGE=
+BATCHAR=error
+LOCK=true
+let loop=0
+while true; do
+        if [[ $loop%600 -eq 0 ]]; then
+                if ["$(curl wttr.in/ygk?format=1 | egrep -o "\-?[0-9]?[0-9]°C")" = ""]; then
+                        weather=$(curl wttr.in/ygk?format=1 | egrep -o "\-?[0-9]?[0-9]°F")
+                        let loop=0
+                else
+                        weather=$(curl wttr.in/ygk?format=1 | egrep -o "\-?[0-9]?[0-9]°C")
+                        let loop=0
+                fi
+        fi
+
+
+
+        cpuTemp=$(sensors | egrep -o "+..\..°C  \(crit" | egrep -o "..\..°C" | head -1)
+
+        cpuUse=$(top -bn1 | grep "Cpu(s)" | \
+           sed "s/.*, *\([0-9.]*\)%* id.*/\1/" | \
+           awk '{print 100 - $1"%"}')
+        xsetroot -name " $weather| $cpuTemp/$cpuUse | $(date +%a\,\ %b\ %d\ %l:%M:%S%P) "
+
+        let loop=$loop+1
+        sleep 1
+done
